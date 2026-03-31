@@ -23,7 +23,7 @@ pip install -r requirements.txt
 
 # Configure API keys
 cp .env.example .env
-# Edit .env with your keys (see below)
+# Edit .env with your keys (see Environment Requirements below)
 
 # Run
 python app.py
@@ -31,25 +31,45 @@ python app.py
 
 Open [http://localhost:5000](http://localhost:5000).
 
-## API Keys Required
+## Environment Requirements
 
-Create a `.env` file with:
+### System Dependencies
+
+| Dependency | Purpose | Install |
+|------------|---------|---------|
+| **Python 3.11+** | Runtime | `apt install python3.11` or [pyenv](https://github.com/pyenv/pyenv) |
+| **ffmpeg** | Extract audio from video | `apt install ffmpeg` / `brew install ffmpeg` |
+| **Node.js** | Used by yt-dlp for some extractors | `apt install nodejs` / `brew install node` |
+
+### Python Packages
+
+All listed in `requirements.txt`. Key dependencies:
+
+| Package | Purpose |
+|---------|---------|
+| `flask` | Web framework |
+| `gunicorn` | Production WSGI server |
+| `openai` | Whisper transcription + DeepSeek API |
+| `google-genai` | Gemini video analysis |
+| `yt-dlp` | Download video from URLs |
+| `torch`, `transformers` | Local Whisper inference (optional) |
+
+> **Note on PyTorch:** For GPU support, install torch separately with CUDA before running `pip install -r requirements.txt`:
+> ```bash
+> pip install torch --index-url https://download.pytorch.org/whl/cu121
+> ```
+
+### API Keys
+
+Create a `.env` file (see `.env.example`):
 
 ```
-OPENAI_API_KEY=your-openai-key
-DEEPSEEK_API_KEY=your-deepseek-key
-GEMINI_API_KEY=your-gemini-key
+OPENAI_API_KEY=...    # OpenAI — Whisper transcription
+DEEPSEEK_API_KEY=...  # DeepSeek — transcript-based report generation
+GEMINI_API_KEY=...    # Google — Gemini video analysis
 ```
 
-- **OpenAI** — for Whisper transcription
-- **DeepSeek** — for transcript-based report generation
-- **Gemini** — for direct video analysis
-
-## Dependencies
-
-- Python 3.11+
-- `ffmpeg` installed on your system
-- `yt-dlp` (installed via requirements, used for URL video downloads)
+All three are required for full functionality. Pipeline 1 (transcript) needs OpenAI + DeepSeek. Pipeline 2 (video) needs Gemini.
 
 ## Pages
 
