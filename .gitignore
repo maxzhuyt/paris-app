@@ -1,0 +1,11 @@
+.env
+__pycache__/
+venv/
+.venv/
+*.db
+video_cache/
+gunicorn.ctl
+=4.40.0
+*.pyc
+.claude/
+docs/superpowers/

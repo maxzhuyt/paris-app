@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PARIS — Compare Pipelines</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; background: #f5f5f5; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        h1 { margin: 0 0 5px; font-size: 24px; }
+        .subtitle { color: #666; margin-bottom: 20px; }
+        
+        .nav { display: flex; gap: 10px; margin-bottom: 20px; }
+        .nav a { padding: 8px 16px; background: white; border-radius: 6px; text-decoration: none; color: #333; }
+        .nav a:hover { background: #eee; }
+        .nav a.active { background: #7b1fa2; color: white; }
+        
+        .grid { display: grid; grid-template-columns: 350px 1fr; gap: 20px; }
+        
+        .sidebar { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); height: fit-content; position: sticky; top: 20px; }
+        .sidebar h2 { margin: 0 0 15px; font-size: 16px; }
+        
+        label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 5px; color: #444; }
+        .hint { font-size: 11px; color: #888; margin-bottom: 8px; }
+        
+        input, textarea, select { width: 100%; padding: 8px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; margin-bottom: 12px; }
+        textarea { min-height: 80px; resize: vertical; font-family: inherit; }
+        input:focus, textarea:focus { outline: none; border-color: #7b1fa2; }
+        
+        .tabs { display: flex; border-bottom: 1px solid #eee; margin-bottom: 12px; }
+        .tab { padding: 8px 12px; font-size: 13px; cursor: pointer; color: #666; }
+        .tab.active { color: #7b1fa2; border-bottom: 2px solid #7b1fa2; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .param-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+        .param-row input { margin-bottom: 8px; }
+        
+        .btn { width: 100%; padding: 12px; background: #7b1fa2; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; }
+        .btn:hover { background: #6a1b9a; }
+        .btn:disabled { background: #ccc; cursor: not-allowed; }
+        .btn-secondary { background: #666; margin-top: 8px; }
+        
+        .main { min-width: 0; }
+        .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        
+        .output-card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; }
+        .output-header { padding: 12px 16px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .output-header h3 { margin: 0; font-size: 14px; }
+        .output-header .pipeline-badge { font-size: 11px; padding: 3px 8px; border-radius: 4px; }
+        .badge-blue { background: #e3f2fd; color: #1565c0; }
+        .badge-green { background: #e8f5e9; color: #2e7d32; }
+        
+        .output-actions { display: flex; gap: 6px; }
+        .btn-small { padding: 4px 10px; font-size: 11px; background: #f0f0f0; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-small:hover { background: #e0e0e0; }
+        
+        .output-content { padding: 16px; max-height: 500px; overflow-y: auto; }
+        .output-content pre { white-space: pre-wrap; word-wrap: break-word; font-size: 12px; line-height: 1.5; margin: 0; font-family: 'SF Mono', Monaco, monospace; }
+        
+        .transcript-card { grid-column: 1 / -1; }
+        
+        .loading { text-align: center; padding: 60px 20px; display: none; }
+        .loading-spinner { width: 40px; height: 40px; border: 3px solid #e0e0e0; border-top-color: #7b1fa2; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-step { color: #666; font-size: 13px; margin: 8px 0; }
+        .loading-step.active { color: #7b1fa2; font-weight: 500; }
+        .loading-step.done { color: #388e3c; }
+        .loading-step.done::before { content: '✓ '; }
+        
+        .error { background: #ffebee; border: 1px solid #ffcdd2; color: #c62828; padding: 16px; border-radius: 8px; margin-top: 20px; display: none; }
+        
+        .exp-info { background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 12px; font-size: 12px; color: #666; }
+        .exp-info strong { color: #333; }
+        
+        .placeholder { color: #999; font-style: italic; text-align: center; padding: 40px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav">
+            <a href="/">Home</a>
+            <a href="/compare" class="active">Compare</a>
+            <a href="/history">History</a>
+        </div>
+        
+        <h1>Compare Pipelines</h1>
+        <p class="subtitle">Run both pipelines on the same video and compare outputs side-by-side</p>
+        
+        <div class="grid">
+            <div class="sidebar">
+                <h2>Configuration</h2>
+                
+                <!-- Video Source -->
+                <label>Video Source</label>
+                <div class="tabs">
+                    <div class="tab active" data-tab="upload">Upload</div>
+                    <div class="tab" data-tab="url">URL</div>
+                </div>
+                <div class="tab-content active" id="upload-tab">
+                    <input type="file" name="video_file" accept="video/*">
+                    <div class="hint">MP4, AVI, MOV, MKV (max 500MB)</div>
+                </div>
+                <div class="tab-content" id="url-tab">
+                    <input type="url" name="video_url" placeholder="https://youtube.com/watch?v=...">
+                    <div class="hint">YouTube, Vimeo, etc.</div>
+                </div>
+                
+                <!-- Incident Metadata -->
+                <h2 style="margin-top:16px;">Incident Metadata</h2>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                    <div>
+                        <label>Officer Name</label>
+                        <input type="text" id="officerName" placeholder="e.g. John Smith">
+                    </div>
+                    <div>
+                        <label>Officer Rank</label>
+                        <input type="text" id="officerRank" placeholder="e.g. Officer, Sergeant">
+                    </div>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                    <div>
+                        <label>Incident Date</label>
+                        <input type="date" id="incidentDate">
+                    </div>
+                    <div>
+                        <label>Location</label>
+                        <input type="text" id="incidentLocation" placeholder="e.g. 123 Main St">
+                    </div>
+                </div>
+                <label>Incident Type</label>
+                <select id="incidentType">
+                    <option value="" selected>Select...</option>
+                    <option value="Domestic Dispute">Domestic Dispute</option>
+                    <option value="Drug Related">Drug Related</option>
+                    <option value="Fraud and Financial">Fraud and Financial</option>
+                    <option value="Impaired Driving">Impaired Driving</option>
+                    <option value="Informational Report">Informational Report</option>
+                    <option value="Missing Person">Missing Person</option>
+                    <option value="Property Crime">Property Crime</option>
+                    <option value="Public Disorder">Public Disorder</option>
+                    <option value="Sexual Offense">Sexual Offense</option>
+                    <option value="Traffic Incident">Traffic Incident</option>
+                    <option value="Violent Crime">Violent Crime</option>
+                    <option value="Other">Other</option>
+                </select>
+                <label>Charge Severity</label>
+                <select id="chargeSeverity">
+                    <option value="" selected>Select...</option>
+                    <option value="Misdemeanor">Misdemeanor</option>
+                    <option value="Felony">Felony</option>
+                    <option value="Infraction">Infraction</option>
+                    <option value="No Charges">No Charges</option>
+                </select>
+                <div style="margin-bottom: 12px;">
+                    <label style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="arrestMade" style="width: auto; margin: 0;">
+                        Arrest Made
+                    </label>
+                </div>
+                <label>Report Perspective</label>
+                <select id="reportPerspective">
+                    <option value="third" selected>Third Person</option>
+                    <option value="first">First Person</option>
+                </select>
+
+                <!-- Experiment Notes -->
+                <h2 style="margin-top:16px;">Experiment</h2>
+                <label>Experiment Name</label>
+                <input type="text" name="experiment_name" id="experimentName" placeholder="e.g. Baseline test, High temp run...">
+                <label>Notes</label>
+                <textarea name="notes" placeholder="Describe this experiment..."></textarea>
+
+                <!-- Parameters -->
+                <label>Whisper Parameters</label>
+                <div class="param-row" style="grid-template-columns: 1fr;">
+                    <div>
+                        <input type="number" name="whisper_temperature" id="whisperTemperature" value="0" step="0.1" min="0" max="1">
+                        <div class="hint">Temperature</div>
+                    </div>
+                </div>
+                <label>DeepSeek Parameters</label>
+                <div class="param-row" style="grid-template-columns: 1fr 1fr;">
+                    <div>
+                        <input type="number" name="deepseek_temperature" id="deepseekTemperature" value="0" step="0.1" min="0" max="2">
+                        <div class="hint">Temperature</div>
+                    </div>
+                    <div>
+                        <input type="number" name="deepseek_top_p" id="deepseekTopP" value="1" step="0.1" min="0" max="1">
+                        <div class="hint">Top P</div>
+                    </div>
+                </div>
+                <label>Gemini Parameters</label>
+                <div class="param-row" style="grid-template-columns: 1fr 1fr;">
+                    <div>
+                        <input type="number" name="gemini_temperature" id="geminiTemperature" value="0" step="0.1" min="0" max="2">
+                        <div class="hint">Temperature</div>
+                    </div>
+                    <div>
+                        <input type="number" name="gemini_top_p" id="geminiTopP" value="1" step="0.1" min="0" max="1">
+                        <div class="hint">Top P</div>
+                    </div>
+                </div>
+
+                <!-- Prompts -->
+                <h2 style="margin-top:16px;">Prompts</h2>
+                <label>System Prompt</label>
+                <textarea id="systemPrompt">You are an AI assistant that drafts police incident report narratives for sworn officers. Using only the incident transcript and the structured metadata provided (such as officer name and rank, date and time, location, incident type, arrest information, and report style preferences), write a clear, objective, grammatically correct draft narrative in {REPORT_PERSON}-person that follows standard police-report conventions. Describe the call for service, the officer's arrival and observations, interactions with involved parties, the officer's actions, the behavior and statements of subjects, and the final disposition, in a logical chronological order. Do not speculate, infer motives, add facts that are not clearly supported by the transcript or metadata, or provide legal opinions beyond what is explicitly stated. When important information is missing or unclear but normally required in a report (for example exact DOB, injuries, or vehicle details), insert a bracketed placeholder such as [INSERT: missing detail] instead of guessing. Use neutral, professional language, convert spoken dialog into concise indirect speech except where a short direct quote is important, and output only the final narrative text with no headings, explanations, or commentary.</textarea>
+                <label>User Prompt (Pipeline 1 — Transcript)</label>
+                <textarea id="userPromptTranscript"></textarea>
+                <label>User Prompt (Pipeline 2 — Video)</label>
+                <textarea id="userPromptVideo"></textarea>
+
+                <button type="button" class="btn" id="runBtn" onclick="runBoth()">Run Both Pipelines</button>
+                
+                <div class="exp-info" id="expInfo" style="display:none">
+                    <strong>Experiment ID:</strong> <span id="expId">-</span><br>
+                    <strong>Run time:</strong> <span id="expTime">-</span>
+                </div>
+            </div>
+            
+            <div class="main">
+                <div id="loading" class="loading">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-step" id="step1">Extracting audio...</div>
+                    <div class="loading-step" id="step2">Transcribing with Whisper...</div>
+                    <div class="loading-step" id="step3">Generating report (Pipeline 1)...</div>
+                    <div class="loading-step" id="step4">Uploading to Gemini...</div>
+                    <div class="loading-step" id="step5">Generating report (Pipeline 2)...</div>
+                </div>
+                
+                <div class="error" id="error"></div>
+                
+                <div id="results" class="results-grid" style="display:none">
+                    <div class="output-card transcript-card">
+                        <div class="output-header">
+                            <h3>Transcript</h3>
+                            <div class="output-actions">
+                                <button class="btn-small" onclick="copy('transcript')">Copy</button>
+                                <button class="btn-small" onclick="download('transcript', 'transcript.txt')">Download</button>
+                            </div>
+                        </div>
+                        <div class="output-content"><pre id="transcriptOutput" class="placeholder">Run pipelines to see transcript</pre></div>
+                    </div>
+                    
+                    <div class="output-card">
+                        <div class="output-header">
+                            <div>
+                                <h3>Pipeline 1: Transcript-Only</h3>
+                                <span class="pipeline-badge badge-blue">Whisper + DeepSeek-R1</span>
+                            </div>
+                            <div class="output-actions">
+                                <button class="btn-small" onclick="copy('report1')">Copy</button>
+                                <button class="btn-small" onclick="download('report1', 'report_transcript.txt')">Download</button>
+                            </div>
+                        </div>
+                        <div class="output-content"><pre id="report1Output" class="placeholder">Run pipelines to see report</pre></div>
+                    </div>
+                    
+                    <div class="output-card">
+                        <div class="output-header">
+                            <div>
+                                <h3>Pipeline 2: Video (Gemini)</h3>
+                                <span class="pipeline-badge badge-green">Gemini 2.5 Pro</span>
+                            </div>
+                            <div class="output-actions">
+                                <button class="btn-small" onclick="copy('report2')">Copy</button>
+                                <button class="btn-small" onclick="download('report2', 'report_gemini.txt')">Download</button>
+                            </div>
+                        </div>
+                        <div class="output-content"><pre id="report2Output" class="placeholder">Run pipelines to see report</pre></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentExpId = null;
+        let transcriptText = '';
+        let report1Text = '';
+        let report2Text = '';
+
+        const SYSTEM_PROMPT_TEMPLATE = document.getElementById('systemPrompt').value;
+
+        function updateSystemPrompt() {
+            const perspective = document.getElementById('reportPerspective').value;
+            document.getElementById('systemPrompt').value = SYSTEM_PROMPT_TEMPLATE.replace(/\{REPORT_PERSON\}/g, perspective);
+        }
+
+        function buildMetadataBlock() {
+            const name = document.getElementById('officerName').value.trim();
+            const rank = document.getElementById('officerRank').value.trim();
+            const date = document.getElementById('incidentDate').value;
+            const location = document.getElementById('incidentLocation').value.trim();
+            const type = document.getElementById('incidentType').value;
+            const severity = document.getElementById('chargeSeverity').value;
+            const arrestMade = document.getElementById('arrestMade').checked;
+
+            let lines = ['Incident Metadata:'];
+            lines.push(`- Officer: ${rank} ${name}`.trim() === '- Officer:' ? '- Officer: [not provided]' : `- Officer: ${rank} ${name}`);
+            lines.push(`- Incident Date: ${date || '[not provided]'}`);
+            lines.push(`- Location: ${location || '[not provided]'}`);
+            lines.push(`- Incident Type: ${type || '[not provided]'}`);
+            lines.push(`- Charge Severity: ${severity || '[not provided]'}`);
+            lines.push(`- Arrest Made: ${arrestMade ? 'Yes' : 'No'}`);
+            return lines;
+        }
+
+        function buildUserPrompts() {
+            const meta = buildMetadataBlock();
+
+            const transcriptLines = [...meta, '', 'Based on the above metadata and the following transcript, write a detailed police incident report narrative.', '', 'TRANSCRIPT:', '{transcript}'];
+            document.getElementById('userPromptTranscript').value = transcriptLines.join('\n');
+
+            const videoLines = [...meta, '', 'Based on the above metadata and the bodycam video footage, write a detailed police incident report narrative.'];
+            document.getElementById('userPromptVideo').value = videoLines.join('\n');
+        }
+
+        // --- localStorage persistence ---
+        const metaKeys = ['officerName', 'officerRank', 'incidentDate', 'incidentLocation', 'incidentType', 'chargeSeverity', 'arrestMade', 'reportPerspective'];
+
+        // Restore metadata from localStorage
+        metaKeys.forEach(key => {
+            const val = localStorage.getItem('meta_' + key);
+            if (val !== null) {
+                const el = document.getElementById(key);
+                if (!el) return;
+                if (el.type === 'checkbox') el.checked = val === 'true';
+                else el.value = val;
+            }
+        });
+
+        // Restore video URL from localStorage
+        const cachedUrl = localStorage.getItem('video_url');
+        if (cachedUrl) {
+            document.querySelector('input[name="video_url"]').value = cachedUrl;
+            // Auto-switch to URL tab
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelector('.tab[data-tab="url"]').classList.add('active');
+            document.getElementById('url-tab').classList.add('active');
+        }
+
+        // Auto-fill user prompts when metadata changes
+        document.querySelectorAll('#officerName, #officerRank, #incidentDate, #incidentLocation').forEach(el => {
+            el.addEventListener('input', () => {
+                localStorage.setItem('meta_' + el.id, el.value);
+                buildUserPrompts();
+            });
+        });
+        document.querySelectorAll('#incidentType, #chargeSeverity').forEach(el => {
+            el.addEventListener('change', () => {
+                localStorage.setItem('meta_' + el.id, el.value);
+                buildUserPrompts();
+            });
+        });
+        document.getElementById('arrestMade').addEventListener('change', (e) => {
+            localStorage.setItem('meta_arrestMade', e.target.checked);
+            buildUserPrompts();
+        });
+        document.getElementById('reportPerspective').addEventListener('change', (e) => {
+            localStorage.setItem('meta_reportPerspective', e.target.value);
+            updateSystemPrompt();
+            buildUserPrompts();
+        });
+
+        // Save video URL on input
+        document.querySelector('input[name="video_url"]').addEventListener('input', (e) => {
+            localStorage.setItem('video_url', e.target.value);
+        });
+
+        // Initial fill
+        updateSystemPrompt();
+        buildUserPrompts();
+
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab + '-tab').classList.add('active');
+            });
+        });
+
+        function getFormData() {
+            const form = new FormData();
+            const uploadTab = document.querySelector('.tab[data-tab="upload"]').classList.contains('active');
+
+            if (uploadTab) {
+                const file = document.querySelector('input[name="video_file"]').files[0];
+                if (file) form.append('video_file', file);
+            } else {
+                const url = document.querySelector('input[name="video_url"]').value;
+                if (url) form.append('video_url', url);
+            }
+
+            form.append('whisper_temperature', document.getElementById('whisperTemperature').value);
+            form.append('deepseek_temperature', document.getElementById('deepseekTemperature').value);
+            form.append('deepseek_top_p', document.getElementById('deepseekTopP').value);
+            form.append('gemini_temperature', document.getElementById('geminiTemperature').value);
+            form.append('gemini_top_p', document.getElementById('geminiTopP').value);
+            form.append('notes', document.querySelector('textarea[name="notes"]').value);
+            form.append('experiment_name', document.getElementById('experimentName').value);
+
+            form.append('system_prompt', document.getElementById('systemPrompt').value);
+            form.append('user_prompt_transcript', document.getElementById('userPromptTranscript').value);
+            form.append('user_prompt_video', document.getElementById('userPromptVideo').value);
+
+            return form;
+        }
+        
+        function setStep(step, status) {
+            const el = document.getElementById('step' + step);
+            el.className = 'loading-step ' + status;
+        }
+        
+        async function runBoth() {
+            const formData = getFormData();
+            
+            if (!formData.has('video_file') && !formData.has('video_url')) {
+                alert('Please provide a video file or URL');
+                return;
+            }
+            
+            // Reset UI
+            document.getElementById('runBtn').disabled = true;
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('expInfo').style.display = 'none';
+            
+            for (let i = 1; i <= 5; i++) setStep(i, '');
+            
+            try {
+                // Simulate progress
+                setStep(1, 'active');
+                await new Promise(r => setTimeout(r, 500));
+                
+                setStep(2, 'active');
+                
+                const response = await fetch('/api/compare', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) throw new Error(data.error);
+                
+                // Update all steps as done
+                for (let i = 1; i <= 5; i++) setStep(i, 'done');
+                
+                // Store results
+                currentExpId = data.experiment_id;
+                transcriptText = data.transcript;
+                report1Text = data.report_transcript;
+                report2Text = data.report_video;
+                
+                // Display results
+                document.getElementById('transcriptOutput').textContent = transcriptText;
+                document.getElementById('transcriptOutput').classList.remove('placeholder');
+                document.getElementById('report1Output').textContent = report1Text;
+                document.getElementById('report1Output').classList.remove('placeholder');
+                document.getElementById('report2Output').textContent = report2Text;
+                document.getElementById('report2Output').classList.remove('placeholder');
+                
+                document.getElementById('expId').textContent = currentExpId;
+                document.getElementById('expTime').textContent = new Date().toLocaleString();
+                document.getElementById('expInfo').style.display = 'block';
+                
+                document.getElementById('results').style.display = 'grid';
+                
+            } catch (err) {
+                document.getElementById('error').textContent = err.message;
+                document.getElementById('error').style.display = 'block';
+            } finally {
+                document.getElementById('runBtn').disabled = false;
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+        
+        function copy(type) {
+            let text = '';
+            if (type === 'transcript') text = transcriptText;
+            else if (type === 'report1') text = report1Text;
+            else if (type === 'report2') text = report2Text;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Copied to clipboard!');
+            });
+        }
+        
+        function download(type, filename) {
+            let text = '';
+            if (type === 'transcript') text = transcriptText;
+            else if (type === 'report1') text = report1Text;
+            else if (type === 'report2') text = report2Text;
+            
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+    </script>
+</body>
+</html>

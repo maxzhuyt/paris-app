@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PARIS — Experiment History</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 1000px; margin: 0 auto; padding: 40px 20px; background: #f5f5f5; }
+        h1 { margin: 0 0 5px; }
+        .subtitle { color: #666; margin-bottom: 20px; }
+        
+        .nav { display: flex; gap: 10px; margin-bottom: 30px; }
+        .nav a { padding: 8px 16px; background: white; border-radius: 6px; text-decoration: none; color: #333; }
+        .nav a:hover { background: #eee; }
+        .nav a.active { background: #7b1fa2; color: white; }
+        
+        .empty { text-align: center; padding: 60px 20px; color: #666; }
+        .empty h2 { margin-bottom: 10px; }
+        
+        .exp-list { display: flex; flex-direction: column; gap: 12px; }
+        
+        .exp-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: flex-start; }
+        .exp-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+        
+        .exp-info h3 { margin: 0 0 8px; font-size: 16px; }
+        .exp-meta { font-size: 12px; color: #666; }
+        .exp-meta span { margin-right: 16px; }
+        .exp-notes { margin-top: 8px; font-size: 13px; color: #444; font-style: italic; }
+        
+        .badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; }
+        .badge-both { background: #f3e5f5; color: #7b1fa2; }
+        .badge-transcript { background: #e3f2fd; color: #1565c0; }
+        .badge-video { background: #e8f5e9; color: #2e7d32; }
+        .badge-error { background: #ffebee; color: #c62828; }
+        
+        .exp-actions { display: flex; gap: 8px; }
+        .btn-small { padding: 6px 12px; font-size: 12px; background: #f0f0f0; border: none; border-radius: 6px; cursor: pointer; text-decoration: none; color: #333; }
+        .btn-small:hover { background: #e0e0e0; }
+        .btn-primary { background: #7b1fa2; color: white; }
+        .btn-primary:hover { background: #6a1b9a; color: white; }
+        
+        .params { margin-top: 10px; font-size: 11px; color: #888; font-family: monospace; background: #f8f8f8; padding: 8px 12px; border-radius: 6px; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="/">Home</a>
+        <a href="/compare">Compare</a>
+        <a href="/history" class="active">History</a>
+    </div>
+    
+    <h1>Experiment History</h1>
+    <p class="subtitle">View and export previous experiments</p>
+    
+    <div id="expList" class="exp-list">
+        <div class="empty">
+            <h2>No experiments yet</h2>
+            <p>Run some experiments to see them here</p>
+        </div>
+    </div>
+    
+    <script>
+        async function loadExperiments() {
+            try {
+                const response = await fetch('/api/experiments');
+                const experiments = await response.json();
+                
+                const list = document.getElementById('expList');
+                
+                if (Object.keys(experiments).length === 0) {
+                    list.innerHTML = `
+                        <div class="empty">
+                            <h2>No experiments yet</h2>
+                            <p>Run some experiments to see them here</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                list.innerHTML = Object.values(experiments)
+                    .sort((a, b) => b.timestamp.localeCompare(a.timestamp))
+                    .map(exp => {
+                        const badge = {
+                            'both': '<span class="badge badge-both">Both</span>',
+                            'transcript': '<span class="badge badge-transcript">Transcript</span>',
+                            'video': '<span class="badge badge-video">Video</span>',
+                        }[exp.params.pipeline] || '';
+                        
+                        const statusBadge = exp.status === 'error' 
+                            ? '<span class="badge badge-error">Error</span>' 
+                            : '';
+                        
+                        const models = exp.params.models || '';
+                        const params = Object.entries(exp.params)
+                            .filter(([k, v]) => k !== 'system_prompt' && k !== 'user_prompt' && k !== 'models')
+                            .map(([k, v]) => `${k}=${v}`)
+                            .join(', ');
+                        
+                        return `
+                            <div class="exp-card">
+                                <div class="exp-info">
+                                    <h3>${badge} ${statusBadge} ${exp.name || exp.id}</h3>
+                                    <div class="exp-meta">
+                                        <span>📁 ${exp.video_source || 'Unknown'}</span>
+                                        <span>🕐 ${new Date(exp.timestamp).toLocaleString()}</span>
+                                    </div>
+                                    ${exp.notes ? `<div class="exp-notes">"${exp.notes}"</div>` : ''}
+                                    ${models ? `<div class="exp-meta" style="margin-top:6px;"><span>🤖 ${models}</span></div>` : ''}
+                                    <div class="params">${params}</div>
+                                    ${exp.error ? `<div style="color:#c62828;margin-top:8px;font-size:12px;">Error: ${exp.error}</div>` : ''}
+                                </div>
+                                <div class="exp-actions">
+                                    <a href="/api/export/${exp.id}/json" class="btn-small">JSON</a>
+                                    <a href="/api/export/${exp.id}/txt" class="btn-small">TXT</a>
+                                    <a href="/api/experiment/${exp.id}" class="btn-small btn-primary" target="_blank">View</a>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                    
+            } catch (err) {
+                console.error('Failed to load experiments:', err);
+            }
+        }
+        
+        loadExperiments();
+    </script>
+</body>
+</html>

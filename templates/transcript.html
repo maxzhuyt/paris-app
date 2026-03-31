@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PARIS — Transcript-Only Report</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 1000px; margin: 0 auto; padding: 40px 20px; background: #f5f5f5; }
+        h1 { color: #333; margin: 0 0 5px; }
+        .subtitle { color: #666; margin-bottom: 20px; }
+        
+        .nav { display: flex; gap: 10px; margin-bottom: 30px; }
+        .nav a { padding: 8px 16px; background: white; border-radius: 6px; text-decoration: none; color: #333; }
+        .nav a:hover { background: #eee; }
+        .nav a.active { background: #1976d2; color: white; }
+        
+        .form-section { background: white; border-radius: 12px; padding: 24px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .form-section h2 { margin: 0 0 16px; font-size: 16px; color: #333; }
+        
+        label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 13px; color: #444; }
+        .hint { font-size: 11px; color: #888; margin-bottom: 10px; }
+        
+        input, textarea, select { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; margin-bottom: 14px; }
+        textarea { min-height: 100px; font-family: inherit; resize: vertical; }
+        input:focus, textarea:focus { outline: none; border-color: #1976d2; }
+        
+        .param-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        
+        .tabs { display: flex; border-bottom: 1px solid #eee; margin-bottom: 14px; }
+        .tab { padding: 10px 16px; font-size: 13px; cursor: pointer; color: #666; }
+        .tab.active { color: #1976d2; border-bottom: 2px solid #1976d2; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .btn { background: #1976d2; color: white; border: none; padding: 14px 24px; border-radius: 8px; font-size: 15px; font-weight: 500; cursor: pointer; width: 100%; }
+        .btn:hover { background: #1565c0; }
+        .btn:disabled { background: #ccc; cursor: not-allowed; }
+        .btn-row { display: flex; gap: 10px; margin-top: 10px; }
+        .btn-secondary { background: #666; flex: 0 0 auto; padding: 14px 20px; }
+        
+        .output { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-top: 16px; overflow: hidden; display: none; }
+        .output-header { padding: 14px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; background: #fafafa; }
+        .output-header h3 { margin: 0; font-size: 14px; }
+        .output-actions { display: flex; gap: 8px; }
+        .btn-small { padding: 6px 12px; font-size: 12px; background: white; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; }
+        .btn-small:hover { background: #f0f0f0; }
+        .output-content { padding: 20px; max-height: 500px; overflow-y: auto; }
+        .output-content pre { white-space: pre-wrap; word-wrap: break-word; font-size: 13px; line-height: 1.6; margin: 0; font-family: 'SF Mono', Monaco, monospace; }
+        
+        .loading { text-align: center; padding: 50px 20px; display: none; }
+        .loading-spinner { width: 36px; height: 36px; border: 3px solid #e0e0e0; border-top-color: #1976d2; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-step { color: #666; font-size: 13px; margin: 6px 0; }
+        .loading-step.active { color: #1976d2; font-weight: 500; }
+        .loading-step.done { color: #388e3c; }
+        .loading-step.done::before { content: '✓ '; }
+        
+        .error { background: #ffebee; border: 1px solid #ffcdd2; color: #c62828; padding: 16px; border-radius: 8px; margin-top: 16px; display: none; }
+        
+        .exp-info { background: #e3f2fd; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 13px; display: none; }
+        .exp-info strong { color: #1565c0; }
+        
+        .placeholder { color: #999; font-style: italic; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="/">Home</a>
+        <a href="/compare">Compare</a>
+        <a href="/history">History</a>
+    </div>
+    
+    <h1>Transcript-Only Report</h1>
+    <p class="subtitle">Pipeline 1: OpenAI Whisper + DeepSeek Reasoner</p>
+    
+    <form id="transcriptForm">
+        <div class="form-section">
+            <h2>Video Source</h2>
+            <div class="tabs">
+                <div class="tab active" data-tab="upload">Upload File</div>
+                <div class="tab" data-tab="url">Video URL</div>
+            </div>
+            <div class="tab-content active" id="upload-tab">
+                <input type="file" name="video_file" accept="video/*">
+                <div class="hint">MP4, AVI, MOV, MKV, WebM (max 500MB)</div>
+            </div>
+            <div class="tab-content" id="url-tab">
+                <input type="url" name="video_url" placeholder="https://youtube.com/watch?v=...">
+                <div class="hint">YouTube, Vimeo, and other platforms supported</div>
+            </div>
+        </div>
+        
+        <div class="form-section">
+            <h2>Incident Metadata</h2>
+            <div class="param-row">
+                <div>
+                    <label>Officer Name</label>
+                    <input type="text" id="officerName" placeholder="e.g. John Smith">
+                </div>
+                <div>
+                    <label>Officer Rank</label>
+                    <input type="text" id="officerRank" placeholder="e.g. Officer, Sergeant">
+                </div>
+            </div>
+            <div class="param-row">
+                <div>
+                    <label>Incident Date</label>
+                    <input type="date" id="incidentDate">
+                </div>
+                <div>
+                    <label>Location</label>
+                    <input type="text" id="incidentLocation" placeholder="e.g. 123 Main St, Springfield">
+                </div>
+            </div>
+            <div class="param-row">
+                <div>
+                    <label>Incident Type</label>
+                    <select id="incidentType">
+                        <option value="" selected>Select...</option>
+                        <option value="Domestic Dispute">Domestic Dispute</option>
+                        <option value="Drug Related">Drug Related</option>
+                        <option value="Fraud and Financial">Fraud and Financial</option>
+                        <option value="Impaired Driving">Impaired Driving</option>
+                        <option value="Informational Report">Informational Report</option>
+                        <option value="Missing Person">Missing Person</option>
+                        <option value="Property Crime">Property Crime</option>
+                        <option value="Public Disorder">Public Disorder</option>
+                        <option value="Sexual Offense">Sexual Offense</option>
+                        <option value="Traffic Incident">Traffic Incident</option>
+                        <option value="Violent Crime">Violent Crime</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Charge Severity</label>
+                    <select id="chargeSeverity">
+                        <option value="" selected>Select...</option>
+                        <option value="Misdemeanor">Misdemeanor</option>
+                        <option value="Felony">Felony</option>
+                        <option value="Infraction">Infraction</option>
+                        <option value="No Charges">No Charges</option>
+                    </select>
+                </div>
+            </div>
+            <div style="margin-bottom: 14px;">
+                <label style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" id="arrestMade" style="width: auto; margin: 0;">
+                    Arrest Made
+                </label>
+            </div>
+            <label>Report Perspective</label>
+            <select id="reportPerspective">
+                <option value="third" selected>Third Person</option>
+                <option value="first">First Person</option>
+            </select>
+        </div>
+
+        <div class="form-section">
+            <h2>Experiment</h2>
+            <label>Experiment Name</label>
+            <input type="text" name="experiment_name" placeholder="e.g. Baseline test, High temp run...">
+            <label>Notes (for tracking)</label>
+            <textarea name="notes" placeholder="Describe what you're testing..."></textarea>
+            
+            <label>Whisper Parameters</label>
+            <div class="param-row">
+                <div>
+                    <label>Temperature</label>
+                    <input type="number" name="whisper_temperature" id="whisperTemperature" value="0" step="0.1" min="0" max="1">
+                    <div class="hint">0 = deterministic</div>
+                </div>
+            </div>
+
+            <label>DeepSeek Parameters</label>
+            <div class="param-row">
+                <div>
+                    <label>Temperature</label>
+                    <input type="number" name="deepseek_temperature" id="deepseekTemperature" value="0" step="0.1" min="0" max="2">
+                    <div class="hint">0 = deterministic</div>
+                </div>
+                <div>
+                    <label>Top P</label>
+                    <input type="number" name="deepseek_top_p" id="deepseekTopP" value="1" step="0.1" min="0" max="1">
+                    <div class="hint">1 = no nucleus sampling</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-section">
+            <h2>Prompts</h2>
+            <label>System Prompt</label>
+            <textarea name="system_prompt" id="systemPrompt">You are an AI assistant that drafts police incident report narratives for sworn officers. Using only the incident transcript and the structured metadata provided (such as officer name and rank, date and time, location, incident type, arrest information, and report style preferences), write a clear, objective, grammatically correct draft narrative in {REPORT_PERSON}-person that follows standard police-report conventions. Describe the call for service, the officer's arrival and observations, interactions with involved parties, the officer's actions, the behavior and statements of subjects, and the final disposition, in a logical chronological order. Do not speculate, infer motives, add facts that are not clearly supported by the transcript or metadata, or provide legal opinions beyond what is explicitly stated. When important information is missing or unclear but normally required in a report (for example exact DOB, injuries, or vehicle details), insert a bracketed placeholder such as [INSERT: missing detail] instead of guessing. Use neutral, professional language, convert spoken dialog into concise indirect speech except where a short direct quote is important, and output only the final narrative text with no headings, explanations, or commentary.</textarea>
+
+            <label>User Prompt <span class="hint">(use {transcript} as placeholder)</span></label>
+            <textarea name="user_prompt" id="userPrompt"></textarea>
+        </div>
+        
+        <div class="exp-info" id="expInfo">
+            <strong>Experiment ID:</strong> <span id="expId">-</span> | 
+            <strong>Time:</strong> <span id="expTime">-</span>
+        </div>
+        
+        <button type="submit" class="btn" id="submitBtn">Generate Report</button>
+        <div class="btn-row">
+            <button type="button" class="btn btn-secondary" onclick="exportTXT()">Export TXT</button>
+        </div>
+    </form>
+    
+    <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+        <div class="loading-step" id="step1">Extracting audio...</div>
+        <div class="loading-step" id="step2">Transcribing with Whisper...</div>
+        <div class="loading-step" id="step3">Generating report...</div>
+    </div>
+    
+    <div class="error" id="error"></div>
+    
+    <div class="output" id="transcriptOutput">
+        <div class="output-header">
+            <h3>Transcript</h3>
+            <div class="output-actions">
+                <button class="btn-small" onclick="copyText('transcript')">Copy</button>
+                <button class="btn-small" onclick="downloadText('transcript', 'transcript.txt')">Download</button>
+            </div>
+        </div>
+        <div class="output-content"><pre id="transcriptText"></pre></div>
+    </div>
+    
+    <div class="output" id="reportOutput">
+        <div class="output-header">
+            <h3>Report</h3>
+            <div class="output-actions">
+                <button class="btn-small" onclick="copyText('report')">Copy</button>
+                <button class="btn-small" onclick="downloadText('report', 'report.txt')">Download</button>
+            </div>
+        </div>
+        <div class="output-content"><pre id="reportText"></pre></div>
+    </div>
+    
+    <script>
+        let currentExpId = null;
+        let transcriptContent = '';
+        let reportContent = '';
+
+        const SYSTEM_PROMPT_TEMPLATE = document.getElementById('systemPrompt').value;
+
+        function updateSystemPrompt() {
+            const perspective = document.getElementById('reportPerspective').value;
+            document.getElementById('systemPrompt').value = SYSTEM_PROMPT_TEMPLATE.replace(/\{REPORT_PERSON\}/g, perspective);
+        }
+
+        function buildUserPrompt() {
+            const name = document.getElementById('officerName').value.trim();
+            const rank = document.getElementById('officerRank').value.trim();
+            const date = document.getElementById('incidentDate').value;
+            const location = document.getElementById('incidentLocation').value.trim();
+            const type = document.getElementById('incidentType').value;
+            const severity = document.getElementById('chargeSeverity').value;
+            const arrestMade = document.getElementById('arrestMade').checked;
+
+            let lines = ['Incident Metadata:'];
+            lines.push(`- Officer: ${rank} ${name}`.trim() === '- Officer:' ? '- Officer: [not provided]' : `- Officer: ${rank} ${name}`);
+            lines.push(`- Incident Date: ${date || '[not provided]'}`);
+            lines.push(`- Location: ${location || '[not provided]'}`);
+            lines.push(`- Incident Type: ${type || '[not provided]'}`);
+            lines.push(`- Charge Severity: ${severity || '[not provided]'}`);
+            lines.push(`- Arrest Made: ${arrestMade ? 'Yes' : 'No'}`);
+            lines.push('');
+            lines.push('Based on the above metadata and the following transcript, write a detailed police incident report narrative.');
+            lines.push('');
+            lines.push('TRANSCRIPT:');
+            lines.push('{transcript}');
+
+            document.getElementById('userPrompt').value = lines.join('\n');
+        }
+
+        // --- localStorage persistence ---
+        const metaKeys = ['officerName', 'officerRank', 'incidentDate', 'incidentLocation', 'incidentType', 'chargeSeverity', 'arrestMade', 'reportPerspective'];
+
+        // Restore metadata from localStorage
+        metaKeys.forEach(key => {
+            const val = localStorage.getItem('meta_' + key);
+            if (val !== null) {
+                const el = document.getElementById(key);
+                if (!el) return;
+                if (el.type === 'checkbox') el.checked = val === 'true';
+                else el.value = val;
+            }
+        });
+
+        // Restore video URL from localStorage
+        const cachedUrl = localStorage.getItem('video_url');
+        if (cachedUrl) {
+            document.querySelector('input[name="video_url"]').value = cachedUrl;
+            // Auto-switch to URL tab
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelector('.tab[data-tab="url"]').classList.add('active');
+            document.getElementById('url-tab').classList.add('active');
+        }
+
+        // Auto-fill user prompt when metadata changes
+        document.querySelectorAll('#officerName, #officerRank, #incidentDate, #incidentLocation').forEach(el => {
+            el.addEventListener('input', () => {
+                localStorage.setItem('meta_' + el.id, el.value);
+                buildUserPrompt();
+            });
+        });
+        document.querySelectorAll('#incidentType, #chargeSeverity').forEach(el => {
+            el.addEventListener('change', () => {
+                localStorage.setItem('meta_' + el.id, el.value);
+                buildUserPrompt();
+            });
+        });
+        document.getElementById('arrestMade').addEventListener('change', (e) => {
+            localStorage.setItem('meta_arrestMade', e.target.checked);
+            buildUserPrompt();
+        });
+        document.getElementById('reportPerspective').addEventListener('change', (e) => {
+            localStorage.setItem('meta_reportPerspective', e.target.value);
+            updateSystemPrompt();
+            buildUserPrompt();
+        });
+
+        // Save video URL on input
+        document.querySelector('input[name="video_url"]').addEventListener('input', (e) => {
+            localStorage.setItem('video_url', e.target.value);
+        });
+
+        // Initial fill
+        updateSystemPrompt();
+        buildUserPrompt();
+
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab + '-tab').classList.add('active');
+            });
+        });
+
+        function setStep(step, status) {
+            const el = document.getElementById('step' + step);
+            el.className = 'loading-step ' + status;
+        }
+
+        document.getElementById('transcriptForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const form = e.target;
+            const formData = new FormData(form);
+
+            const uploadTab = document.querySelector('.tab[data-tab="upload"]').classList.contains('active');
+            if (uploadTab) formData.delete('video_url');
+            else formData.delete('video_file');
+            
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('transcriptOutput').style.display = 'none';
+            document.getElementById('reportOutput').style.display = 'none';
+            document.getElementById('expInfo').style.display = 'none';
+            
+            for (let i = 1; i <= 3; i++) setStep(i, '');
+            
+            try {
+                setStep(1, 'active');
+                const response = await fetch('/api/transcript', { method: 'POST', body: formData });
+                const data = await response.json();
+                
+                if (data.error) throw new Error(data.error);
+                
+                for (let i = 1; i <= 3; i++) setStep(i, 'done');
+                
+                currentExpId = data.experiment_id;
+                transcriptContent = data.transcript;
+                reportContent = data.report;
+                
+                document.getElementById('transcriptText').textContent = transcriptContent;
+                document.getElementById('reportText').textContent = reportContent;
+                
+                document.getElementById('expId').textContent = currentExpId;
+                document.getElementById('expTime').textContent = new Date().toLocaleString();
+                document.getElementById('expInfo').style.display = 'block';
+                
+                document.getElementById('transcriptOutput').style.display = 'block';
+                document.getElementById('reportOutput').style.display = 'block';
+                
+            } catch (err) {
+                document.getElementById('error').textContent = err.message;
+                document.getElementById('error').style.display = 'block';
+            } finally {
+                document.getElementById('submitBtn').disabled = false;
+                document.getElementById('loading').style.display = 'none';
+            }
+        });
+        
+        function copyText(type) {
+            const text = type === 'transcript' ? transcriptContent : reportContent;
+            navigator.clipboard.writeText(text).then(() => alert('Copied!'));
+        }
+        
+        function downloadText(type, filename) {
+            const text = type === 'transcript' ? transcriptContent : reportContent;
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function exportTXT() {
+            if (!currentExpId) { alert('No experiment to export'); return; }
+            window.location.href = `/api/export/${currentExpId}/txt`;
+        }
+    </script>
+</body>
+</html>

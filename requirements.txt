@@ -1,0 +1,11 @@
+flask>=3.0.0
+gunicorn>=21.0.0
+python-dotenv>=1.0.0
+openai>=1.0.0
+google-genai>=1.0.0
+yt-dlp>=2024.1.0
+# Local Whisper inference (install torch separately with CUDA: pip install torch --index-url https://download.pytorch.org/whl/cu121)
+torch>=2.1.0
+transformers>=4.40.0
+accelerate>=0.26.0
+soundfile>=0.12.0
