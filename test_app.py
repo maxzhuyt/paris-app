@@ -140,7 +140,6 @@ class TestTranscriptEndpoint:
             'video_url': 'https://youtube.com/watch?v=keep',
             'whisper_temperature': '0',
             'deepseek_temperature': '0',
-            'deepseek_top_p': '1',
             'system_prompt': 'test',
             'user_prompt': 'test {transcript}',
         })
@@ -162,7 +161,6 @@ class TestTranscriptEndpoint:
         data = {
             'whisper_temperature': '0',
             'deepseek_temperature': '0',
-            'deepseek_top_p': '1',
             'system_prompt': 'test',
             'user_prompt': 'test {transcript}',
         }
@@ -184,7 +182,6 @@ class TestTranscriptEndpoint:
         resp = client.post('/api/transcript', data={
             'whisper_temperature': '0',
             'deepseek_temperature': '0',
-            'deepseek_top_p': '1',
         })
         assert resp.status_code == 400
         assert 'No video provided' in resp.get_json()['error']
@@ -212,7 +209,6 @@ class TestVideoEndpoint:
         resp = client.post('/api/video', data={
             'video_url': 'https://youtube.com/watch?v=vid',
             'temperature': '0',
-            'top_p': '1',
             'system_prompt': 'test',
             'user_prompt': 'test',
         })
@@ -226,7 +222,6 @@ class TestVideoEndpoint:
         """Missing video returns 400."""
         resp = client.post('/api/video', data={
             'temperature': '0',
-            'top_p': '1',
         })
         assert resp.status_code == 400
 
@@ -245,8 +240,7 @@ class TestVideoEndpoint:
             resp = client.post('/api/video', data={
                 'video_url': 'https://youtube.com/watch?v=nokey',
                 'temperature': '0',
-                'top_p': '1',
-            })
+                })
 
         assert resp.status_code == 500
         assert 'GEMINI_API_KEY' in resp.get_json()['error']
@@ -281,9 +275,7 @@ class TestCompareEndpoint:
             'video_url': 'https://youtube.com/watch?v=cmp',
             'whisper_temperature': '0',
             'deepseek_temperature': '0',
-            'deepseek_top_p': '1',
             'gemini_temperature': '0',
-            'gemini_top_p': '1',
             'system_prompt': 'test',
             'user_prompt_transcript': 'test {transcript}',
             'user_prompt_video': 'test',
@@ -301,9 +293,7 @@ class TestCompareEndpoint:
         resp = client.post('/api/compare', data={
             'whisper_temperature': '0',
             'deepseek_temperature': '0',
-            'deepseek_top_p': '1',
             'gemini_temperature': '0',
-            'gemini_top_p': '1',
         })
         assert resp.status_code == 400
 

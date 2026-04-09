@@ -210,7 +210,6 @@ def run_transcript_pipeline():
     
     whisper_temperature = float(request.form.get('whisper_temperature', 0.0))
     deepseek_temperature = float(request.form.get('deepseek_temperature', 0.0))
-    deepseek_top_p = float(request.form.get('deepseek_top_p', 1.0))
     system_prompt = request.form.get('system_prompt', '')
     user_prompt = request.form.get('user_prompt', '')
     notes = request.form.get('notes', '')
@@ -250,7 +249,6 @@ def run_transcript_pipeline():
             'models': 'whisper-1, deepseek-reasoner',
             'whisper_temperature': whisper_temperature,
             'deepseek_temperature': deepseek_temperature,
-            'deepseek_top_p': deepseek_top_p,
             'system_prompt': system_prompt[:200] + '...' if len(system_prompt) > 200 else system_prompt,
             'user_prompt': user_prompt[:200] + '...' if len(user_prompt) > 200 else user_prompt,
         },
@@ -268,7 +266,7 @@ def run_transcript_pipeline():
 
         report = generate_report_transcript(
             transcript, system_prompt, user_prompt,
-            deepseek_temperature, deepseek_top_p
+            deepseek_temperature
         )
         exp['report_transcript'] = report
         exp['status'] = 'complete'
@@ -298,7 +296,6 @@ def run_video_pipeline():
     timestamp = datetime.now().isoformat()
     
     temperature = float(request.form.get('temperature', 0.0))
-    top_p = float(request.form.get('top_p', 1.0))
     system_prompt = request.form.get('system_prompt', '')
     user_prompt = request.form.get('user_prompt', '')
     notes = request.form.get('notes', '')
@@ -341,7 +338,6 @@ def run_video_pipeline():
             'pipeline': 'video',
             'models': 'gemini-2.5-pro',
             'temperature': temperature,
-            'top_p': top_p,
             'system_prompt': system_prompt[:200] + '...' if len(system_prompt) > 200 else system_prompt,
             'user_prompt': user_prompt[:200] + '...' if len(user_prompt) > 200 else user_prompt,
         },
@@ -358,7 +354,7 @@ def run_video_pipeline():
 
         report = generate_report_gemini(
             client, video_file, system_prompt, user_prompt,
-            temperature, top_p
+            temperature
         )
         exp['report_video'] = report
         exp['status'] = 'complete'
@@ -395,9 +391,7 @@ def run_both_pipelines():
     # Get params
     whisper_temperature = float(request.form.get('whisper_temperature', 0.0))
     deepseek_temperature = float(request.form.get('deepseek_temperature', 0.0))
-    deepseek_top_p = float(request.form.get('deepseek_top_p', 1.0))
     gemini_temperature = float(request.form.get('gemini_temperature', 0.0))
-    gemini_top_p = float(request.form.get('gemini_top_p', 1.0))
     system_prompt = request.form.get('system_prompt', '')
     user_prompt_transcript = request.form.get('user_prompt_transcript', '')
     user_prompt_video = request.form.get('user_prompt_video', '')
@@ -442,9 +436,7 @@ def run_both_pipelines():
             'models': 'whisper-1, deepseek-reasoner, gemini-2.5-pro',
             'whisper_temperature': whisper_temperature,
             'deepseek_temperature': deepseek_temperature,
-            'deepseek_top_p': deepseek_top_p,
             'gemini_temperature': gemini_temperature,
-            'gemini_top_p': gemini_top_p,
         },
         'status': 'processing',
         'transcript': None,
@@ -463,7 +455,7 @@ def run_both_pipelines():
 
         report_transcript = generate_report_transcript(
             transcript, system_prompt, user_prompt_transcript,
-            deepseek_temperature, deepseek_top_p
+            deepseek_temperature
         )
         exp['report_transcript'] = report_transcript
 
@@ -474,7 +466,7 @@ def run_both_pipelines():
 
         report_video = generate_report_gemini(
             client, video_file, system_prompt, user_prompt_video,
-            gemini_temperature, gemini_top_p
+            gemini_temperature
         )
         exp['report_video'] = report_video
         exp['status'] = 'complete'
@@ -561,7 +553,6 @@ def generate_report_transcript(
     system_prompt: str,
     user_prompt: str,
     temperature: float,
-    top_p: float,
 ) -> str:
     from openai import OpenAI
 
@@ -588,7 +579,8 @@ def generate_report_transcript(
             {"role": "user", "content": user_prompt},
         ],
         max_tokens=8192,
-        top_p=top_p,
+        temperature=temperature,
+        top_p=1.0,
     )
 
     return response.choices[0].message.content
@@ -615,7 +607,6 @@ def generate_report_gemini(
     system_prompt: str,
     user_prompt: str,
     temperature: float,
-    top_p: float,
 ) -> str:
     from google.genai import types
 
@@ -631,7 +622,7 @@ def generate_report_gemini(
         config=types.GenerateContentConfig(
             system_instruction=system_prompt,
             temperature=temperature,
-            top_p=top_p,
+            top_p=1.0,
             max_output_tokens=8192,
         ),
     )

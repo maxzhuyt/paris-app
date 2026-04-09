@@ -186,20 +186,12 @@
                         <input type="number" name="deepseek_temperature" id="deepseekTemperature" value="0" step="0.1" min="0" max="2">
                         <div class="hint">Temperature</div>
                     </div>
-                    <div>
-                        <input type="number" name="deepseek_top_p" id="deepseekTopP" value="1" step="0.1" min="0" max="1">
-                        <div class="hint">Top P</div>
-                    </div>
                 </div>
                 <label>Gemini Parameters</label>
                 <div class="param-row" style="grid-template-columns: 1fr 1fr;">
                     <div>
                         <input type="number" name="gemini_temperature" id="geminiTemperature" value="0" step="0.1" min="0" max="2">
                         <div class="hint">Temperature</div>
-                    </div>
-                    <div>
-                        <input type="number" name="gemini_top_p" id="geminiTopP" value="1" step="0.1" min="0" max="1">
-                        <div class="hint">Top P</div>
                     </div>
                 </div>
 
@@ -399,9 +391,7 @@
 
             form.append('whisper_temperature', document.getElementById('whisperTemperature').value);
             form.append('deepseek_temperature', document.getElementById('deepseekTemperature').value);
-            form.append('deepseek_top_p', document.getElementById('deepseekTopP').value);
             form.append('gemini_temperature', document.getElementById('geminiTemperature').value);
-            form.append('gemini_top_p', document.getElementById('geminiTopP').value);
             form.append('notes', document.querySelector('textarea[name="notes"]').value);
             form.append('experiment_name', document.getElementById('experimentName').value);
 
