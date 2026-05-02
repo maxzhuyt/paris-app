@@ -64,6 +64,11 @@
         .exp-info strong { color: #000; }
 
         .placeholder { color: #999; font-style: italic; }
+
+        .header { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+        .header img { width: 48px; height: 48px; object-fit: contain; }
+        .header-text h1 { margin: 0; }
+        .header-text .subtitle { margin: 0; }
     </style>
 </head>
 <body>
@@ -73,9 +78,14 @@
         <a href="/history">History</a>
         <a href="/about">About</a>
     </div>
-    
-    <h1>Transcript-Only Report</h1>
-    <p class="subtitle">Pipeline 1: OpenAI Whisper + DeepSeek Reasoner</p>
+
+    <div class="header">
+        <img src="{{ url_for('static', filename='paris_logo.png') }}" alt="PARIS logo">
+        <div class="header-text">
+            <h1>Transcript-Only Report</h1>
+            <p class="subtitle">Pipeline 1: OpenAI Whisper + DeepSeek Reasoner</p>
+        </div>
+    </div>
     
     <form id="transcriptForm">
         <div class="form-section">

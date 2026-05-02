@@ -79,11 +79,21 @@
             font-style: italic;
             margin-top: 10px;
         }
+
+        .header { display: flex; align-items: center; gap: 16px; margin-bottom: 30px; }
+        .header img { width: 56px; height: 56px; object-fit: contain; }
+        .header-text h1 { margin: 0; }
+        .header-text .subtitle { margin: 0; }
     </style>
 </head>
 <body>
-    <h1>PARIS</h1>
-    <p class="subtitle">Police AI Report & Incident Simulator</p>
+    <div class="header">
+        <img src="{{ url_for('static', filename='paris_logo.png') }}" alt="PARIS logo">
+        <div class="header-text">
+            <h1>PARIS</h1>
+            <p class="subtitle">Police AI Report & Incident Simulator</p>
+        </div>
+    </div>
 
     <div class="nav">
         <a href="/" class="active">Home</a>

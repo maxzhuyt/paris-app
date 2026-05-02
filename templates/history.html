@@ -41,6 +41,11 @@
         .btn-primary:hover { background: #000; color: #fff; }
 
         .params { margin-top: 10px; font-size: 11px; color: #555; font-family: monospace; background: #f5f5f5; border: 1px solid #ddd; padding: 8px 12px; border-radius: 4px; }
+
+        .header { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+        .header img { width: 48px; height: 48px; object-fit: contain; }
+        .header-text h1 { margin: 0; }
+        .header-text .subtitle { margin: 0; }
     </style>
 </head>
 <body>
@@ -50,9 +55,14 @@
         <a href="/history" class="active">History</a>
         <a href="/about">About</a>
     </div>
-    
-    <h1>Experiment History</h1>
-    <p class="subtitle">View and export previous experiments</p>
+
+    <div class="header">
+        <img src="{{ url_for('static', filename='paris_logo.png') }}" alt="PARIS logo">
+        <div class="header-text">
+            <h1>Experiment History</h1>
+            <p class="subtitle">View and export previous experiments</p>
+        </div>
+    </div>
     
     <div id="expList" class="exp-list">
         <div class="empty">

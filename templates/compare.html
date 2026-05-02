@@ -75,6 +75,11 @@
         .exp-info strong { color: #1a1a1a; }
 
         .placeholder { color: #999; font-style: italic; text-align: center; padding: 40px; }
+
+        .header { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+        .header img { width: 48px; height: 48px; object-fit: contain; }
+        .header-text h1 { margin: 0; }
+        .header-text .subtitle { margin: 0; }
     </style>
 </head>
 <body>
@@ -85,9 +90,14 @@
             <a href="/history">History</a>
             <a href="/about">About</a>
         </div>
-        
-        <h1>Compare Pipelines</h1>
-        <p class="subtitle">Run both pipelines on the same video and compare outputs side-by-side</p>
+
+        <div class="header">
+            <img src="{{ url_for('static', filename='paris_logo.png') }}" alt="PARIS logo">
+            <div class="header-text">
+                <h1>Compare Pipelines</h1>
+                <p class="subtitle">Run both pipelines on the same video and compare outputs side-by-side</p>
+            </div>
+        </div>
         
         <div class="grid">
             <div class="sidebar">

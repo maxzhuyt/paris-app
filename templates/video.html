@@ -64,6 +64,11 @@
 
         .exp-info { background: #f5f5f5; border: 1px solid #ddd; padding: 12px 16px; border-radius: 4px; margin-bottom: 16px; font-size: 13px; display: none; color: #1a1a1a; }
         .exp-info strong { color: #000; }
+
+        .header { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+        .header img { width: 48px; height: 48px; object-fit: contain; }
+        .header-text h1 { margin: 0; }
+        .header-text .subtitle { margin: 0; }
     </style>
 </head>
 <body>
@@ -73,9 +78,14 @@
         <a href="/history">History</a>
         <a href="/about">About</a>
     </div>
-    
-    <h1>Video Report (Gemini)</h1>
-    <p class="subtitle">Pipeline 2: Gemini 2.5 Pro - Full multimodal video analysis</p>
+
+    <div class="header">
+        <img src="{{ url_for('static', filename='paris_logo.png') }}" alt="PARIS logo">
+        <div class="header-text">
+            <h1>Video Report (Gemini)</h1>
+            <p class="subtitle">Pipeline 2: Gemini 2.5 Pro - Full multimodal video analysis</p>
+        </div>
+    </div>
     
     <form id="videoForm">
         <div class="form-section">
