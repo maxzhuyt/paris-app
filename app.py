@@ -129,6 +129,11 @@ def history_page():
     return render_template('history.html', experiments=list_experiments_db())
 
 
+@app.route('/about')
+def about_page():
+    return render_template('about.html')
+
+
 @app.route('/api/experiments')
 def list_experiments():
     return jsonify(list_experiments_db())

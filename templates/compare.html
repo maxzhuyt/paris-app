@@ -6,74 +6,74 @@
     <title>PARIS — Compare Pipelines</title>
     <style>
         * { box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; background: #f5f5f5; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; background: #ffffff; color: #1a1a1a; }
         .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-        h1 { margin: 0 0 5px; font-size: 24px; }
-        .subtitle { color: #666; margin-bottom: 20px; }
-        
+        h1 { margin: 0 0 5px; font-size: 24px; color: #000; }
+        .subtitle { color: #555; margin-bottom: 20px; }
+
         .nav { display: flex; gap: 10px; margin-bottom: 20px; }
-        .nav a { padding: 8px 16px; background: white; border-radius: 6px; text-decoration: none; color: #333; }
-        .nav a:hover { background: #eee; }
-        .nav a.active { background: #7b1fa2; color: white; }
-        
+        .nav a { padding: 8px 16px; background: #fff; border: 1px solid #1a1a1a; border-radius: 4px; text-decoration: none; color: #1a1a1a; }
+        .nav a:hover { background: #f0f0f0; }
+        .nav a.active { background: #1a1a1a; color: #fff; }
+
         .grid { display: grid; grid-template-columns: 350px 1fr; gap: 20px; }
-        
-        .sidebar { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); height: fit-content; position: sticky; top: 20px; }
-        .sidebar h2 { margin: 0 0 15px; font-size: 16px; }
-        
-        label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 5px; color: #444; }
-        .hint { font-size: 11px; color: #888; margin-bottom: 8px; }
-        
-        input, textarea, select { width: 100%; padding: 8px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; margin-bottom: 12px; }
+
+        .sidebar { background: #fff; border: 1px solid #1a1a1a; border-radius: 4px; padding: 20px; height: fit-content; position: sticky; top: 20px; }
+        .sidebar h2 { margin: 0 0 15px; font-size: 16px; color: #000; }
+
+        label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 5px; color: #1a1a1a; }
+        .hint { font-size: 11px; color: #666; margin-bottom: 8px; }
+        .instruction { font-size: 12px; color: #444; font-style: italic; margin: -2px 0 8px; }
+
+        input, textarea, select { width: 100%; padding: 8px 10px; border: 1px solid #999; border-radius: 4px; font-size: 13px; margin-bottom: 12px; background: #fff; color: #1a1a1a; }
         textarea { min-height: 80px; resize: vertical; font-family: inherit; }
-        input:focus, textarea:focus { outline: none; border-color: #7b1fa2; }
-        
-        .tabs { display: flex; border-bottom: 1px solid #eee; margin-bottom: 12px; }
-        .tab { padding: 8px 12px; font-size: 13px; cursor: pointer; color: #666; }
-        .tab.active { color: #7b1fa2; border-bottom: 2px solid #7b1fa2; }
+        input:focus, textarea:focus { outline: none; border-color: #1a1a1a; }
+
+        .tabs { display: flex; border-bottom: 1px solid #ddd; margin-bottom: 12px; }
+        .tab { padding: 8px 12px; font-size: 13px; cursor: pointer; color: #555; }
+        .tab.active { color: #000; border-bottom: 2px solid #1a1a1a; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        
+
         .param-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
         .param-row input { margin-bottom: 8px; }
-        
-        .btn { width: 100%; padding: 12px; background: #7b1fa2; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; }
-        .btn:hover { background: #6a1b9a; }
-        .btn:disabled { background: #ccc; cursor: not-allowed; }
-        .btn-secondary { background: #666; margin-top: 8px; }
-        
+
+        .btn { width: 100%; padding: 12px; background: #1a1a1a; color: #fff; border: 1px solid #1a1a1a; border-radius: 4px; font-size: 14px; font-weight: 500; cursor: pointer; }
+        .btn:hover { background: #000; }
+        .btn:disabled { background: #888; border-color: #888; cursor: not-allowed; }
+        .btn-secondary { background: #fff; color: #1a1a1a; margin-top: 8px; }
+        .btn-secondary:hover { background: #f0f0f0; }
+
         .main { min-width: 0; }
         .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        
-        .output-card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; }
-        .output-header { padding: 12px 16px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
-        .output-header h3 { margin: 0; font-size: 14px; }
-        .output-header .pipeline-badge { font-size: 11px; padding: 3px 8px; border-radius: 4px; }
-        .badge-blue { background: #e3f2fd; color: #1565c0; }
-        .badge-green { background: #e8f5e9; color: #2e7d32; }
-        
+
+        .output-card { background: #fff; border: 1px solid #1a1a1a; border-radius: 4px; overflow: hidden; }
+        .output-header { padding: 12px 16px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
+        .output-header h3 { margin: 0; font-size: 14px; color: #000; }
+        .output-header .pipeline-badge { font-size: 11px; padding: 3px 8px; border-radius: 4px; border: 1px solid #1a1a1a; background: #fff; color: #1a1a1a; }
+
         .output-actions { display: flex; gap: 6px; }
-        .btn-small { padding: 4px 10px; font-size: 11px; background: #f0f0f0; border: none; border-radius: 4px; cursor: pointer; }
-        .btn-small:hover { background: #e0e0e0; }
-        
+        .btn-small { padding: 4px 10px; font-size: 11px; background: #fff; border: 1px solid #1a1a1a; border-radius: 4px; cursor: pointer; color: #1a1a1a; }
+        .btn-small:hover { background: #f0f0f0; }
+
         .output-content { padding: 16px; max-height: 500px; overflow-y: auto; }
         .output-content pre { white-space: pre-wrap; word-wrap: break-word; font-size: 12px; line-height: 1.5; margin: 0; font-family: 'SF Mono', Monaco, monospace; }
-        
+
         .transcript-card { grid-column: 1 / -1; }
-        
+
         .loading { text-align: center; padding: 60px 20px; display: none; }
-        .loading-spinner { width: 40px; height: 40px; border: 3px solid #e0e0e0; border-top-color: #7b1fa2; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+        .loading-spinner { width: 40px; height: 40px; border: 3px solid #e0e0e0; border-top-color: #1a1a1a; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .loading-step { color: #666; font-size: 13px; margin: 8px 0; }
-        .loading-step.active { color: #7b1fa2; font-weight: 500; }
-        .loading-step.done { color: #388e3c; }
+        .loading-step { color: #555; font-size: 13px; margin: 8px 0; }
+        .loading-step.active { color: #000; font-weight: 500; }
+        .loading-step.done { color: #1a1a1a; }
         .loading-step.done::before { content: '✓ '; }
-        
-        .error { background: #ffebee; border: 1px solid #ffcdd2; color: #c62828; padding: 16px; border-radius: 8px; margin-top: 20px; display: none; }
-        
-        .exp-info { background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 12px; font-size: 12px; color: #666; }
-        .exp-info strong { color: #333; }
-        
+
+        .error { background: #fff; border: 1px solid #1a1a1a; color: #1a1a1a; padding: 16px; border-radius: 4px; margin-top: 20px; display: none; }
+
+        .exp-info { background: #f5f5f5; border: 1px solid #ddd; padding: 12px; border-radius: 4px; margin-bottom: 12px; font-size: 12px; color: #555; }
+        .exp-info strong { color: #1a1a1a; }
+
         .placeholder { color: #999; font-style: italic; text-align: center; padding: 40px; }
     </style>
 </head>
@@ -83,6 +83,7 @@
             <a href="/">Home</a>
             <a href="/compare" class="active">Compare</a>
             <a href="/history">History</a>
+            <a href="/about">About</a>
         </div>
         
         <h1>Compare Pipelines</h1>
@@ -198,6 +199,7 @@
                 <!-- Prompts -->
                 <h2 style="margin-top:16px;">Prompts</h2>
                 <label>System Prompt</label>
+                <div class="instruction">Enter instructions describing how the AI should draft the report (tone, structure, what to include or avoid). The default below provides standard police-report conventions — edit it to fit your study.</div>
                 <textarea id="systemPrompt">You are an AI assistant that drafts police incident report narratives for sworn officers. Using only the incident transcript and the structured metadata provided (such as officer name and rank, date and time, location, incident type, arrest information, and report style preferences), write a clear, objective, grammatically correct draft narrative in {REPORT_PERSON}-person that follows standard police-report conventions. Describe the call for service, the officer's arrival and observations, interactions with involved parties, the officer's actions, the behavior and statements of subjects, and the final disposition, in a logical chronological order. Do not speculate, infer motives, add facts that are not clearly supported by the transcript or metadata, or provide legal opinions beyond what is explicitly stated. When important information is missing or unclear but normally required in a report (for example exact DOB, injuries, or vehicle details), insert a bracketed placeholder such as [INSERT: missing detail] instead of guessing. Use neutral, professional language, convert spoken dialog into concise indirect speech except where a short direct quote is important, and output only the final narrative text with no headings, explanations, or commentary.</textarea>
                 <label>User Prompt (Pipeline 1 — Transcript)</label>
                 <textarea id="userPromptTranscript"></textarea>
@@ -240,7 +242,7 @@
                         <div class="output-header">
                             <div>
                                 <h3>Pipeline 1: Transcript-Only</h3>
-                                <span class="pipeline-badge badge-blue">Whisper + DeepSeek-R1</span>
+                                <span class="pipeline-badge">Whisper + DeepSeek-R1</span>
                             </div>
                             <div class="output-actions">
                                 <button class="btn-small" onclick="copy('report1')">Copy</button>
@@ -254,7 +256,7 @@
                         <div class="output-header">
                             <div>
                                 <h3>Pipeline 2: Video (Gemini)</h3>
-                                <span class="pipeline-badge badge-green">Gemini 2.5 Pro</span>
+                                <span class="pipeline-badge">Gemini 2.5 Pro</span>
                             </div>
                             <div class="output-actions">
                                 <button class="btn-small" onclick="copy('report2')">Copy</button>
