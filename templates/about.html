@@ -47,19 +47,15 @@
             margin-top: 2px;
         }
 
-        .header { display: flex; align-items: center; gap: 16px; margin-bottom: 30px; }
-        .header img { width: 56px; height: 56px; object-fit: contain; }
-        .header-text h1 { margin: 0; }
-        .header-text .subtitle { margin: 0; }
+        .brand { display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 30px; }
+        .brand img { width: 160px; height: auto; object-fit: contain; margin-bottom: 8px; }
+        .brand .subtitle { margin: 0; font-size: 18px; color: #333; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <img src="{{ url_for('static', filename='paris_logo.png') }}" alt="PARIS logo">
-        <div class="header-text">
-            <h1>About PARIS</h1>
-            <p class="subtitle">Police AI Report & Incident Simulator</p>
-        </div>
+    <div class="brand">
+        <img src="{{ url_for('static', filename='paris_logo.png') }}" alt="PARIS">
+        <p class="subtitle">Police AI Report & Incident Simulator</p>
     </div>
 
     <div class="nav">
