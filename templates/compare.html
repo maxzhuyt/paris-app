@@ -6,80 +6,81 @@
     <title>PARIS — Compare Pipelines</title>
     <style>
         * { box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; background: #ffffff; color: #1a1a1a; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; background: #0a0a0a; color: #e8e8e8; }
         .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-        h1 { margin: 0 0 5px; font-size: 24px; color: #000; }
-        .subtitle { color: #555; margin-bottom: 20px; }
+        h1 { margin: 0 0 5px; font-size: 24px; color: #fff; }
+        .subtitle { color: #aaa; margin-bottom: 20px; }
 
         .nav { display: flex; gap: 10px; margin-bottom: 20px; }
-        .nav a { padding: 8px 16px; background: #fff; border: 1px solid #1a1a1a; border-radius: 4px; text-decoration: none; color: #1a1a1a; }
-        .nav a:hover { background: #f0f0f0; }
-        .nav a.active { background: #1a1a1a; color: #fff; }
+        .nav a { padding: 8px 16px; background: #1a1a1a; border: 1px solid #555; border-radius: 4px; text-decoration: none; color: #e8e8e8; }
+        .nav a:hover { background: #2a2a2a; }
+        .nav a.active { background: #fff; color: #000; border-color: #fff; }
 
         .grid { display: grid; grid-template-columns: 350px 1fr; gap: 20px; }
 
-        .sidebar { background: #fff; border: 1px solid #1a1a1a; border-radius: 4px; padding: 20px; height: fit-content; position: sticky; top: 20px; }
-        .sidebar h2 { margin: 0 0 15px; font-size: 16px; color: #000; }
+        .sidebar { background: #1a1a1a; border: 1px solid #444; border-radius: 4px; padding: 20px; height: fit-content; position: sticky; top: 20px; }
+        .sidebar h2 { margin: 0 0 15px; font-size: 16px; color: #fff; }
 
-        label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 5px; color: #1a1a1a; }
-        .hint { font-size: 11px; color: #666; margin-bottom: 8px; }
-        .instruction { font-size: 12px; color: #444; font-style: italic; margin: -2px 0 8px; }
+        label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 5px; color: #e8e8e8; }
+        .hint { font-size: 11px; color: #888; margin-bottom: 8px; }
+        .instruction { font-size: 12px; color: #bbb; font-style: italic; margin: -2px 0 8px; }
 
-        input, textarea, select { width: 100%; padding: 8px 10px; border: 1px solid #999; border-radius: 4px; font-size: 13px; margin-bottom: 12px; background: #fff; color: #1a1a1a; }
+        input, textarea, select { width: 100%; padding: 8px 10px; border: 1px solid #555; border-radius: 4px; font-size: 13px; margin-bottom: 12px; background: #0a0a0a; color: #e8e8e8; }
         textarea { min-height: 80px; resize: vertical; font-family: inherit; }
-        input:focus, textarea:focus { outline: none; border-color: #1a1a1a; }
+        input:focus, textarea:focus { outline: none; border-color: #fff; }
+        input[type="file"]::file-selector-button { background: #2a2a2a; color: #e8e8e8; border: 1px solid #555; border-radius: 4px; padding: 4px 10px; cursor: pointer; }
 
-        .tabs { display: flex; border-bottom: 1px solid #ddd; margin-bottom: 12px; }
-        .tab { padding: 8px 12px; font-size: 13px; cursor: pointer; color: #555; }
-        .tab.active { color: #000; border-bottom: 2px solid #1a1a1a; }
+        .tabs { display: flex; border-bottom: 1px solid #444; margin-bottom: 12px; }
+        .tab { padding: 8px 12px; font-size: 13px; cursor: pointer; color: #aaa; }
+        .tab.active { color: #fff; border-bottom: 2px solid #fff; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
         .param-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
         .param-row input { margin-bottom: 8px; }
 
-        .btn { width: 100%; padding: 12px; background: #1a1a1a; color: #fff; border: 1px solid #1a1a1a; border-radius: 4px; font-size: 14px; font-weight: 500; cursor: pointer; }
-        .btn:hover { background: #000; }
-        .btn:disabled { background: #888; border-color: #888; cursor: not-allowed; }
-        .btn-secondary { background: #fff; color: #1a1a1a; margin-top: 8px; }
-        .btn-secondary:hover { background: #f0f0f0; }
+        .btn { width: 100%; padding: 12px; background: #fff; color: #000; border: 1px solid #fff; border-radius: 4px; font-size: 14px; font-weight: 500; cursor: pointer; }
+        .btn:hover { background: #ddd; }
+        .btn:disabled { background: #555; color: #888; border-color: #555; cursor: not-allowed; }
+        .btn-secondary { background: transparent; color: #e8e8e8; border-color: #555; margin-top: 8px; }
+        .btn-secondary:hover { background: #2a2a2a; }
 
         .main { min-width: 0; }
         .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 
-        .output-card { background: #fff; border: 1px solid #1a1a1a; border-radius: 4px; overflow: hidden; }
-        .output-header { padding: 12px 16px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
-        .output-header h3 { margin: 0; font-size: 14px; color: #000; }
-        .output-header .pipeline-badge { font-size: 11px; padding: 3px 8px; border-radius: 4px; border: 1px solid #1a1a1a; background: #fff; color: #1a1a1a; }
+        .output-card { background: #1a1a1a; border: 1px solid #444; border-radius: 4px; overflow: hidden; }
+        .output-header { padding: 12px 16px; border-bottom: 1px solid #444; display: flex; justify-content: space-between; align-items: center; background: #222; }
+        .output-header h3 { margin: 0; font-size: 14px; color: #fff; }
+        .output-header .pipeline-badge { font-size: 11px; padding: 3px 8px; border-radius: 4px; border: 1px solid #fff; background: transparent; color: #fff; }
 
         .output-actions { display: flex; gap: 6px; }
-        .btn-small { padding: 4px 10px; font-size: 11px; background: #fff; border: 1px solid #1a1a1a; border-radius: 4px; cursor: pointer; color: #1a1a1a; }
-        .btn-small:hover { background: #f0f0f0; }
+        .btn-small { padding: 4px 10px; font-size: 11px; background: #1a1a1a; border: 1px solid #555; border-radius: 4px; cursor: pointer; color: #e8e8e8; }
+        .btn-small:hover { background: #2a2a2a; }
 
         .output-content { padding: 16px; max-height: 500px; overflow-y: auto; }
-        .output-content pre { white-space: pre-wrap; word-wrap: break-word; font-size: 12px; line-height: 1.5; margin: 0; font-family: 'SF Mono', Monaco, monospace; }
+        .output-content pre { white-space: pre-wrap; word-wrap: break-word; font-size: 12px; line-height: 1.5; margin: 0; font-family: 'SF Mono', Monaco, monospace; color: #e8e8e8; }
 
         .transcript-card { grid-column: 1 / -1; }
 
         .loading { text-align: center; padding: 60px 20px; display: none; }
-        .loading-spinner { width: 40px; height: 40px; border: 3px solid #e0e0e0; border-top-color: #1a1a1a; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+        .loading-spinner { width: 40px; height: 40px; border: 3px solid #444; border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .loading-step { color: #555; font-size: 13px; margin: 8px 0; }
-        .loading-step.active { color: #000; font-weight: 500; }
-        .loading-step.done { color: #1a1a1a; }
+        .loading-step { color: #aaa; font-size: 13px; margin: 8px 0; }
+        .loading-step.active { color: #fff; font-weight: 500; }
+        .loading-step.done { color: #ddd; }
         .loading-step.done::before { content: '✓ '; }
 
-        .error { background: #fff; border: 1px solid #1a1a1a; color: #1a1a1a; padding: 16px; border-radius: 4px; margin-top: 20px; display: none; }
+        .error { background: #1a1a1a; border: 1px solid #fff; color: #fff; padding: 16px; border-radius: 4px; margin-top: 20px; display: none; }
 
-        .exp-info { background: #f5f5f5; border: 1px solid #ddd; padding: 12px; border-radius: 4px; margin-bottom: 12px; font-size: 12px; color: #555; }
-        .exp-info strong { color: #1a1a1a; }
+        .exp-info { background: #1a1a1a; border: 1px solid #444; padding: 12px; border-radius: 4px; margin-bottom: 12px; font-size: 12px; color: #ccc; }
+        .exp-info strong { color: #fff; }
 
-        .placeholder { color: #999; font-style: italic; text-align: center; padding: 40px; }
+        .placeholder { color: #666; font-style: italic; text-align: center; padding: 40px; }
 
-        .header { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
-        .header img { width: 48px; height: 48px; object-fit: contain; }
-        .header-text h1 { margin: 0; }
-        .header-text .subtitle { margin: 0; }
+        .brand { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+        .brand img { width: 70px; height: auto; object-fit: contain; flex-shrink: 0; }
+        .brand-text h1 { margin: 0; }
+        .brand-text .subtitle { margin: 0; }
     </style>
 </head>
 <body>
@@ -91,9 +92,9 @@
             <a href="/about">About</a>
         </div>
 
-        <div class="header">
-            <img src="{{ url_for('static', filename='paris_logo.png') }}" alt="PARIS logo">
-            <div class="header-text">
+        <div class="brand">
+            <img src="{{ url_for('static', filename='paris_logo.png') }}" alt="PARIS">
+            <div class="brand-text">
                 <h1>Compare Pipelines</h1>
                 <p class="subtitle">Run both pipelines on the same video and compare outputs side-by-side</p>
             </div>
